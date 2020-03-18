@@ -1,0 +1,15 @@
+extends layout
+
+block layout-content
+  div.View.UserView
+    h1.Banner Howdy, #{userProfile.nickname}!
+    div.Message
+      div.Title
+        h3 Upload Notes
+    form(method='post' enctype='multipart/form-data' action='/upload')
+      input(type='file' name='file')
+      input(type='submit' value='Submit')
+
+    div.NavButtons
+      a(href="/logout")
+        div.NavButton Log out
