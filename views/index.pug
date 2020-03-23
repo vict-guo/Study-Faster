@@ -8,5 +8,8 @@ block layout-content
         h3 Upload Study Notes
         h1 Convert to Text
     div.NavButtons
-      a(href="/user")
-          div.NavButton Go to Upload
+      form(action='/user' method = 'post' id = 'my_form')
+        label(for='fname') First name:
+        input#fname(type='text' name='fname')
+        div.NavButton
+          a(href='javascript:{}' onclick="document.getElementById('my_form').submit();") Go To Upload

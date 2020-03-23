@@ -6,6 +6,8 @@ const path = require("path");
 const apiRouter = require('./routes');
 // Imports the Google Cloud client library
 const vision = require('@google-cloud/vision');
+const bodyParser = require("body-parser");
+
 // Creates a client
 const client = new vision.ImageAnnotatorClient();
 const db = require('./models/db');
@@ -31,8 +33,12 @@ var cnt = 0;
  app.get("/", (req, res) => {
    res.render("index", { title: "Home" });
  });
+ app.use(bodyParser.urlencoded({extended: false}));
  app.get("/user", (req, res) => {
-  res.render("user", { title: "Profile", userProfile: { nickname: "THERE" } });
+  res.render("user", { title: "Upload", userProfile: { nickname: req.body.fname } });
+});
+app.post("/user", (req, res) => {
+ res.render("user", { title: "Upload", userProfile: { nickname: req.body.fname } });
 });
 app.use('/api/tests', apiRouter);
 
@@ -70,12 +76,11 @@ const handleError = (err, res) => {
 
 const upload = multer({
   dest: "./img"
-  // you might also want to set some limits: https://github.com/expressjs/multer#limits
 });
 
 
 app.post(
-  "/upload",
+  "/user/:name",
   upload.single("file" /* name attribute of <file> element in your form */),
   (req, res) => {
     const tempPath = req.file.path;
@@ -85,11 +90,7 @@ app.post(
     if (path.extname(req.file.originalname).toLowerCase() === ".jpg") {
       fs.rename(tempPath, targetPath, err => {
         if (err) return handleError(err, res);
-
-        res
-          .status(200)
-          .contentType("text/plain")
-          .end("File uploaded!");
+        res.render("user", { title: "Profile", userProfile: { nickname: req.params.name } });
       });
       //Apply GCloud Vision
       storeImage(targetPath).catch(console.error);
