@@ -18,6 +18,7 @@
   "dependencies": {
     "@google-cloud/vision": "^1.11.0",
     "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-prettify": "^0.1.1",
     "jsdom": "^16.2.1",

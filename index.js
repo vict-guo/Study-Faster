@@ -19,6 +19,7 @@ const pretty = require('express-prettify');
 //app.use(pretty());
 const port = process.env.PORT || "8000";
 var cnt = 0;
+var str = "";
 
 /**
  *  App Configuration
@@ -38,6 +39,7 @@ var cnt = 0;
   res.render("user", { title: "Upload", userProfile: { nickname: req.body.fname } });
 });
 app.post("/user", (req, res) => {
+ str = req.body.fname;
  res.render("user", { title: "Upload", userProfile: { nickname: req.body.fname } });
 });
 app.use('/api/tests', apiRouter);
@@ -45,14 +47,14 @@ app.use('/api/tests', apiRouter);
 /*
 * GCloud Vision Query
 */
-async function storeImage(imgPath) {
+async function storeImage(imgPath,author) {
   // Performs label detection on the image file
   // Read a local image as a text document
  const [result] = await client.documentTextDetection(imgPath);
  const fullTextAnnotation = result.fullTextAnnotation;
  //console.log(`${fullTextAnnotation.text}`);
  try{
-    let results = await db.insert(null,'admin',fullTextAnnotation.text);
+    let results = await db.insert(null,author,fullTextAnnotation.text);
  }catch(e){
     console.log(e);
  }
@@ -80,7 +82,7 @@ const upload = multer({
 
 
 app.post(
-  "/user/:name",
+  "/upload",
   upload.single("file" /* name attribute of <file> element in your form */),
   (req, res) => {
     const tempPath = req.file.path;
@@ -90,10 +92,11 @@ app.post(
     if (path.extname(req.file.originalname).toLowerCase() === ".jpg") {
       fs.rename(tempPath, targetPath, err => {
         if (err) return handleError(err, res);
-        res.render("user", { title: "Profile", userProfile: { nickname: req.params.name } });
+        res.render("user", { title: "Upload", userProfile: { nickname: str } });
       });
       //Apply GCloud Vision
-      storeImage(targetPath).catch(console.error);
+      storeImage(targetPath,str).catch(console.error);
+      console.log(str);
     } else {
       fs.unlink(tempPath, err => {
         if (err) return handleError(err, res);
